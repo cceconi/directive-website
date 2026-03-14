@@ -1,0 +1,73 @@
+name: Deploy Website
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [cli-docs-updated]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout website
+        uses: actions/checkout@v4
+
+      - name: Resolve CLI tag
+        id: resolve-tag
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "tag=${{ github.event.client_payload.tag }}" >> $GITHUB_OUTPUT
+          else
+            TAG=$(gh release view --repo cceconi/directive-cli --json tagName -q .tagName)
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Checkout directive-cli docs
+        uses: actions/checkout@v4
+        with:
+          repository: cceconi/directive-cli
+          ref: ${{ steps.resolve-tag.outputs.tag }}
+          sparse-checkout: doc
+          path: directive-cli-doc
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+        env:
+          DOCS_PATH: ${{ github.workspace }}/directive-cli-doc/doc/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
