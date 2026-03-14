@@ -28,7 +28,11 @@ jobs:
           if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
             echo "tag=${{ github.event.client_payload.tag }}" >> $GITHUB_OUTPUT
           else
-            TAG=$(gh release view --repo cceconi/directive-cli --json tagName -q .tagName)
+            TAG=$(gh release view --repo cceconi/directive-cli --json tagName -q .tagName || echo "")
+            if [ -z "$TAG" ]; then
+              echo "No release found for directive-cli"
+              exit 1
+            fi
             echo "tag=$TAG" >> $GITHUB_OUTPUT
           fi
         env:
