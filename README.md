@@ -1,43 +1,44 @@
-# Astro Starter Kit: Minimal
+# directive-website
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Source for [directivephp.com](https://directivephp.com) — the website for the Directive PHP framework. Built with [Astro](https://astro.build).
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Prerequisites
 
-## 🚀 Project Structure
+- **Node.js** ≥ 22.12.0
+- A local checkout of [cceconi/directive-cli](https://github.com/cceconi/directive-cli) (for docs content)
 
-Inside of your Astro project, you'll see the following folders and files:
+## Local Development
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+1. Install dependencies:
+   ```sh
+   npm install
+   ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+2. Set the `DOCS_PATH` environment variable to the `doc/` folder inside your local `directive-cli` checkout:
+   ```sh
+   export DOCS_PATH=/path/to/directive-cli/doc/
+   ```
+   Without this variable the site falls back to `/web/directive-cli-doc/` (the Docker volume used in CI).
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+3. Start the dev server:
+   ```sh
+   npm run dev
+   # → http://localhost:4321
+   ```
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Commands
 
-## 🧞 Commands
+| Command           | Action                                       |
+| :---------------- | :------------------------------------------- |
+| `npm run dev`     | Start local dev server at `localhost:4321`   |
+| `npm run build`   | Build production site to `./dist/`           |
+| `npm run preview` | Preview the production build locally         |
 
-All commands are run from the root of the project, from a terminal:
+## Deployment
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+Deployment is fully automated via GitHub Actions:
 
-## 👀 Want to learn more?
+- **Push to `main`** → triggers `.github/workflows/deploy.yml`, which builds the Astro site and publishes it to GitHub Pages at `directivephp.com`
+- **New CLI release tag** → `cceconi/directive-cli` dispatches a `cli-docs-updated` event; the same deploy workflow runs and pulls the docs at the tagged version via sparse-checkout
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+The Pages source is set to **GitHub Actions** (not branch deploy) in the repository settings.
