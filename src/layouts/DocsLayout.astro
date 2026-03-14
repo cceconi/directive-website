@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import '../styles/global.css';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
 interface Props {
   title: string;
@@ -11,6 +13,8 @@ const { title, currentSlug } = Astro.props;
 
 const allDocs = await getCollection('docs');
 const sorted = allDocs.sort((a, b) => a.data.nav_order - b.data.nav_order);
+const currentEntry = sorted.find(e => e.id === currentSlug);
+const currentTitle = currentEntry?.data.title ?? currentSlug;
 ---
 
 <!doctype html>
@@ -24,6 +28,12 @@ const sorted = allDocs.sort((a, b) => a.data.nav_order - b.data.nav_order);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
+      html { scrollbar-width: thin; scrollbar-color: #1e1e2e transparent; scrollbar-gutter: stable; }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background-color: #1e1e2e; border-radius: 9999px; }
+      ::-webkit-scrollbar-thumb:hover { background-color: #6366f1; }
+
       /* Scrollbar — sidebar */
       .sidebar-scroll {
         scrollbar-width: thin;
@@ -48,25 +58,26 @@ const sorted = allDocs.sort((a, b) => a.data.nav_order - b.data.nav_order);
   <body class="bg-page text-gray-100 antialiased font-sans flex flex-col md:h-screen md:overflow-hidden">
 
     <!-- Top nav -->
-    <nav class="shrink-0 border-b border-border bg-page/80 backdrop-blur-md z-50">
-      <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <a href="/">
-            <img src="/assets/logo-full-dark.svg" alt="Directive" class="h-7" />
-          </a>
-          <span class="text-gray-500 text-sm">/ docs</span>
-        </div>
-        <!-- Mobile menu toggle -->
+    <SiteNav bordered={false} />
+
+    <!-- Breadcrumb bar -->
+    <div class="shrink-0 border-b border-border bg-page/60 backdrop-blur-sm">
+      <div class="max-w-6xl mx-auto px-6 py-2 flex items-center justify-between">
+        <nav aria-label="Breadcrumb" class="flex items-center gap-1.5 text-sm text-gray-500">
+          <a href="/docs/getting-started" class="hover:text-gray-300 transition-colors">Documentation</a>
+          <span>/</span>
+          <span class="text-gray-300">{currentTitle}</span>
+        </nav>
         <button id="sidebar-toggle" class="md:hidden p-2 rounded text-gray-400 hover:text-white hover:bg-surface transition-colors" aria-label="Toggle menu">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
       </div>
-    </nav>
+    </div>
 
     <!-- Mobile sidebar drawer -->
-    <div id="sidebar-overlay" class="fixed inset-x-0 bottom-0 top-[61px] z-40 hidden md:hidden">
+    <div id="sidebar-overlay" class="fixed inset-x-0 bottom-0 top-[101px] z-40 hidden md:hidden">
       <div class="absolute inset-0 bg-black/60" id="sidebar-backdrop"></div>
       <div class="relative w-64 h-full bg-surface border-r border-border py-6 px-4 overflow-y-auto sidebar-scroll">
         <nav>
@@ -126,14 +137,7 @@ const sorted = allDocs.sort((a, b) => a.data.nav_order - b.data.nav_order);
 
     <!-- Footer -->
     <footer class="shrink-0 py-8 px-6 border-t border-border">
-      <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div class="flex items-center gap-6 text-sm text-gray-500">
-          <a href="https://github.com/cceconi/directive" target="_blank" rel="noopener noreferrer" class="hover:text-gray-300 transition-colors">Directive</a>
-          <a href="https://github.com/cceconi/directive-cli" target="_blank" rel="noopener noreferrer" class="hover:text-gray-300 transition-colors">Directive CLI</a>
-          <span>MIT Licence</span>
-        </div>
-        <p class="text-sm text-gray-600">Built with Directive</p>
-      </div>
+      <SiteFooter />
     </footer>
 
     <!-- Back to top button -->
