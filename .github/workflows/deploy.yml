@@ -62,6 +62,8 @@ jobs:
         run: npm run build
         env:
           DOCS_PATH: ${{ github.workspace }}/directive-cli-doc/doc/
+          PUBLIC_POSTHOG_KEY: ${{ secrets.PUBLIC_POSTHOG_KEY }}
+          PUBLIC_POSTHOG_HOST: ${{ secrets.PUBLIC_POSTHOG_HOST }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

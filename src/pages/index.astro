@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import PosthogScript from '../components/PosthogScript.astro';
 ---
 
 <!doctype html>
@@ -9,6 +10,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <PosthogScript />
   <title>Directive — PHP framework for AI-assisted development</title>
   <meta name="description" content="Directive is a PHP ecosystem for AI-assisted development. A structured way to build software with a language model as your co-developer, working from specs rather than vibes." />
 
